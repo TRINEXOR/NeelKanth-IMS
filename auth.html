@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% if page == 'signup' %}Create Account{% else %}Sign In{% endif %} — NeelKanth IMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════
+   DESIGN TOKENS
+════════════════════════════════════════════ */
+:root {
+  --bg:       #03060f;
+  --surface:  #080e1c;
+  --card:     #0c1428;
+  --border:   #14213d;
+  --border2:  #1e305a;
+  --cyan:     #00d4ff;
+  --cyan2:    #0099cc;
+  --violet:   #6c3fff;
+  --green:    #00e57a;
+  --red:      #ff3d5a;
+  --amber:    #ffb300;
+  --text:     #dde8ff;
+  --text2:    #8ba0cc;
+  --muted:    #3d5070;
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Sora', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+
+/* ════════════════════════════════════════════
+   LEFT PANEL — Branding / Hero
+════════════════════════════════════════════ */
+.hero {
+  position: relative;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 60px 56px;
+  overflow: hidden;
+}
+
+/* Animated mesh gradient */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 30%, rgba(0,212,255,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 70%, rgba(108,63,255,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 60% 20%, rgba(0,229,122,0.04) 0%, transparent 50%);
+  animation: meshMove 10s ease-in-out infinite alternate;
+}
+@keyframes meshMove {
+  0%   { transform: scale(1) translate(0, 0); }
+  50%  { transform: scale(1.05) translate(-10px, 10px); }
+  100% { transform: scale(1) translate(5px, -5px); }
+}
+
+/* Grid texture */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+}
+
+/* Corner accent */
+.hero-corner {
+  position: absolute;
+  width: 56px; height: 56px;
+  border-color: var(--cyan);
+  border-style: solid;
+  opacity: 0.25;
+  animation: cornerFadeIn 1s ease forwards;
+}
+.hero-corner.tl { top: 32px; left: 32px; border-width: 2px 0 0 2px; }
+.hero-corner.br { bottom: 32px; right: 32px; border-width: 0 2px 2px 0; }
+@keyframes cornerFadeIn { from { opacity: 0; } to { opacity: 0.25; } }
+
+/* Badge */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,212,255,.06);
+  border: 1px solid rgba(0,212,255,.18);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-family: var(--mono);
+  font-size: .65rem;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeUp .6s ease .2s forwards;
+}
+.badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: blink 2s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* Brand name */
+.hero-brand {
+  font-family: var(--sans);
+  font-size: clamp(2.8rem, 5vw, 4.2rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1px;
+  margin-bottom: 10px;
+  opacity: 0;
+  animation: fadeUp .6s ease .35s forwards;
+}
+.hero-brand .neel { color: var(--text); }
+.hero-brand .kanth {
+  color: var(--cyan);
+  text-shadow: 0 0 40px rgba(0,212,255,.4);
+}
+.hero-brand .ims-tag {
+  display: block;
+  font-size: .32em;
+  font-weight: 400;
+  letter-spacing: 6px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+/* Tagline */
+.hero-tagline {
+  font-size: .95rem;
+  font-weight: 400;
+  color: var(--text2);
+  line-height: 1.65;
+  max-width: 380px;
+  margin-bottom: 44px;
+  opacity: 0;
+  animation: fadeUp .6s ease .5s forwards;
+}
+
+/* Feature pills */
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  opacity: 0;
+  animation: fadeUp .6s ease .65s forwards;
+}
+.feat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.feat-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .95rem;
+  flex-shrink: 0;
+}
+.feat-icon.cyan  { background: rgba(0,212,255,.08); border: 1px solid rgba(0,212,255,.15); }
+.feat-icon.violet{ background: rgba(108,63,255,.1); border: 1px solid rgba(108,63,255,.2); }
+.feat-icon.green { background: rgba(0,229,122,.08); border: 1px solid rgba(0,229,122,.15); }
+.feat-text { font-size: .85rem; color: var(--text2); }
+.feat-text strong { color: var(--text); font-weight: 600; }
+
+/* Floating orb decoration */
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+.orb1 {
+  width: 280px; height: 280px;
+  background: rgba(0,212,255,.05);
+  bottom: -80px; right: -60px;
+}
+.orb2 {
+  width: 160px; height: 160px;
+  background: rgba(108,63,255,.06);
+  top: 60px; right: 40px;
+}
+
+/* Stats row */
+.hero-stats {
+  display: flex;
+  gap: 28px;
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  opacity: 0;
+  animation: fadeUp .6s ease .8s forwards;
+}
+.hstat {}
+.hstat-val {
+  font-family: var(--mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--cyan);
+}
+.hstat-lbl {
+  font-size: .72rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ════════════════════════════════════════════
+   RIGHT PANEL — Form
+════════════════════════════════════════════ */
+.form-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 56px;
+  background: var(--bg);
+  position: relative;
+  overflow-y: auto;
+}
+
+.form-wrap {
+  width: 100%;
+  max-width: 400px;
+}
+
+.form-header {
+  margin-bottom: 36px;
+  opacity: 0;
+  animation: fadeUp .5s ease .1s forwards;
+}
+.form-eyebrow {
+  font-family: var(--mono);
+  font-size: .62rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 8px;
+  opacity: .7;
+}
+.form-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.5px;
+  margin-bottom: 6px;
+}
+.form-subtitle {
+  font-size: .85rem;
+  color: var(--text2);
+}
+
+/* Tab switcher */
+.tab-switch {
+  display: flex;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeUp .5s ease .2s forwards;
+}
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--text2);
+  font-family: var(--sans);
+  font-size: .85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+}
+.tab-btn.active {
+  background: var(--cyan);
+  color: #03060f;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(0,212,255,.25);
+}
+
+/* Form fields */
+.auth-form {
+  opacity: 0;
+  animation: fadeUp .5s ease .3s forwards;
+}
+
+.field-group {
+  margin-bottom: 18px;
+}
+.field-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: .62rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+.field-input-wrap {
+  position: relative;
+}
+.field-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: .9rem;
+  pointer-events: none;
+  opacity: .45;
+}
+.field-input {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: .9rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.field-input::placeholder { color: var(--muted); }
+.field-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(0,212,255,.08);
+  background: var(--surface);
+}
+.field-input.error {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(255,61,90,.08);
+}
+.field-input.success {
+  border-color: var(--green);
+}
+
+/* Password toggle */
+.pw-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: .85rem;
+  padding: 4px;
+  transition: color .15s;
+}
+.pw-toggle:hover { color: var(--text2); }
+
+/* Password strength */
+.pw-strength {
+  margin-top: 8px;
+  display: none;
+}
+.pw-strength.show { display: block; }
+.pw-bars {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.pw-bar {
+  flex: 1; height: 3px;
+  border-radius: 2px;
+  background: var(--border);
+  transition: background .3s;
+}
+.pw-bar.weak   { background: var(--red); }
+.pw-bar.fair   { background: var(--amber); }
+.pw-bar.good   { background: var(--cyan); }
+.pw-bar.strong { background: var(--green); }
+.pw-label {
+  font-family: var(--mono);
+  font-size: .6rem;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+/* Gmail note */
+.gmail-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: rgba(0,212,255,.04);
+  border: 1px solid rgba(0,212,255,.12);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  font-size: .78rem;
+  color: var(--text2);
+  line-height: 1.5;
+}
+.gmail-note .gm-icon { font-size: .9rem; flex-shrink: 0; margin-top: 1px; }
+
+/* Error / success messages */
+.form-message {
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: .82rem;
+  margin-bottom: 18px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn .2s ease;
+}
+.form-message.show { display: flex; }
+.form-message.err  {
+  background: rgba(255,61,90,.08);
+  border: 1px solid rgba(255,61,90,.2);
+  color: #ff7a8a;
+}
+.form-message.ok   {
+  background: rgba(0,229,122,.08);
+  border: 1px solid rgba(0,229,122,.2);
+  color: var(--green);
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+
+/* Submit button */
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  background: var(--cyan);
+  color: #03060f;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: .92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  margin-top: 8px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,212,255,.2);
+}
+.btn-submit:hover {
+  background: #18e0ff;
+  box-shadow: 0 6px 28px rgba(0,212,255,.35);
+  transform: translateY(-1px);
+}
+.btn-submit:active { transform: translateY(0); }
+.btn-submit:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn-submit .btn-text { transition: opacity .2s; }
+.btn-submit.loading .btn-text { opacity: 0; }
+.btn-spinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.btn-submit.loading .btn-spinner { opacity: 1; }
+.spinner-ring {
+  width: 20px; height: 20px;
+  border: 2px solid rgba(3,6,15,.3);
+  border-top-color: #03060f;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+}
+.divider-line { flex: 1; height: 1px; background: var(--border); }
+.divider-text {
+  font-family: var(--mono);
+  font-size: .6rem;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* Switch link */
+.switch-link {
+  text-align: center;
+  font-size: .83rem;
+  color: var(--text2);
+}
+.switch-link a {
+  color: var(--cyan);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color .15s;
+}
+.switch-link a:hover { color: #18e0ff; text-decoration: underline; }
+
+/* Terms note */
+.terms-note {
+  text-align: center;
+  font-size: .72rem;
+  color: var(--muted);
+  margin-top: 18px;
+  line-height: 1.55;
+}
+
+/* Footer branding */
+.form-footer {
+  margin-top: auto;
+  padding-top: 32px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: .6rem;
+  letter-spacing: 1px;
+  color: var(--muted);
+  opacity: 0;
+  animation: fadeUp .5s ease .9s forwards;
+}
+
+/* ── Responsive ──────────────── */
+@media (max-width: 900px) {
+  body { grid-template-columns: 1fr; }
+  .hero { display: none; }
+  .form-panel { padding: 40px 28px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LEFT — HERO ══════════════════════════════ -->
+<aside class="hero">
+  <div class="hero-corner tl"></div>
+  <div class="hero-corner br"></div>
+  <div class="hero-orb orb1"></div>
+  <div class="hero-orb orb2"></div>
+
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Inventory Management System
+    </div>
+
+    <div class="hero-brand">
+      <span class="neel">Neel</span><span class="kanth">Kanth</span>
+      <span class="ims-tag">IMS · v2.0</span>
+    </div>
+
+    <p class="hero-tagline">
+      A professional inventory control platform for modern retail and warehousing. Track stock, monitor alerts, and export reports — all in one place.
+    </p>
+
+    <div class="features">
+      <div class="feat">
+        <div class="feat-icon cyan">📦</div>
+        <div class="feat-text"><strong>Real-time Stock Tracking</strong> — Live quantities, low-stock alerts & status badges</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon violet">📊</div>
+        <div class="feat-text"><strong>Advanced Analytics</strong> — Category breakdown, value charts & restock urgency</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon green">📄</div>
+        <div class="feat-text"><strong>Export Reports</strong> — One-click CSV & Excel exports with full formatting</div>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hstat">
+        <div class="hstat-val">∞</div>
+        <div class="hstat-lbl">Items Supported</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-val">100%</div>
+        <div class="hstat-lbl">Secure Auth</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-val">Live</div>
+        <div class="hstat-lbl">Low-Stock Alerts</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══ RIGHT — FORM ═════════════════════════════ -->
+<main class="form-panel">
+  <div class="form-wrap">
+
+    <!-- Tab Switch -->
+    <div class="tab-switch">
+      <button class="tab-btn {% if page == 'login' %}active{% endif %}" onclick="gotoLogin()">Sign In</button>
+      <button class="tab-btn {% if page == 'signup' %}active{% endif %}" onclick="gotoSignup()">Create Account</button>
+    </div>
+
+    <!-- ── SIGN IN ─────────────────────── -->
+    <div id="loginSection" {% if page == 'signup' %}style="display:none"{% endif %}>
+      <div class="form-header">
+        <div class="form-eyebrow">Welcome back</div>
+        <div class="form-title">Sign in to IMS</div>
+        <div class="form-subtitle">Access your inventory dashboard</div>
+      </div>
+
+      <div id="loginMsg" class="form-message"></div>
+
+      <div class="auth-form">
+        <div class="field-group">
+          <label class="field-label">Gmail Address</label>
+          <div class="field-input-wrap">
+            <span class="field-icon">✉</span>
+            <input id="loginEmail" class="field-input" type="email"
+              placeholder="you@gmail.com" autocomplete="email">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Password</label>
+          <div class="field-input-wrap">
+            <span class="field-icon">🔒</span>
+            <input id="loginPassword" class="field-input" type="password"
+              placeholder="Enter your password" autocomplete="current-password">
+            <button class="pw-toggle" type="button" onclick="togglePw('loginPassword', this)">👁</button>
+          </div>
+        </div>
+
+        <button class="btn-submit" id="loginBtn" onclick="doLogin()">
+          <span class="btn-text">Sign In →</span>
+          <span class="btn-spinner"><span class="spinner-ring"></span></span>
+        </button>
+      </div>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <div class="divider-text">New here?</div>
+        <div class="divider-line"></div>
+      </div>
+      <div class="switch-link">
+        Don't have an account? <a href="/signup">Create one free →</a>
+      </div>
+    </div>
+
+    <!-- ── SIGN UP ─────────────────────── -->
+    <div id="signupSection" {% if page == 'login' %}style="display:none"{% endif %}>
+      <div class="form-header">
+        <div class="form-eyebrow">Join NeelKanth IMS</div>
+        <div class="form-title">Create your account</div>
+        <div class="form-subtitle">Sign up with Gmail &amp; set your own password</div>
+      </div>
+
+      <div id="signupMsg" class="form-message"></div>
+
+      <div class="auth-form">
+        <div class="field-group">
+          <label class="field-label">Full Name</label>
+          <div class="field-input-wrap">
+            <span class="field-icon">👤</span>
+            <input id="suName" class="field-input" type="text"
+              placeholder="Your full name" autocomplete="name">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Gmail Address</label>
+          <div class="field-input-wrap">
+            <span class="field-icon">✉</span>
+            <input id="suEmail" class="field-input" type="email"
+              placeholder="you@gmail.com" autocomplete="email"
+              oninput="validateGmail(this)">
+          </div>
+          <div class="gmail-note">
+            <span class="gm-icon">ℹ</span>
+            <span>NeelKanth IMS requires a <strong>Gmail account</strong> (@gmail.com) for sign-up. Your email is your secure login identity.</span>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Choose Password</label>
+          <div class="field-input-wrap">
+            <span class="field-icon">🔑</span>
+            <input id="suPassword" class="field-input" type="password"
+              placeholder="Min. 8 characters" autocomplete="new-password"
+              oninput="checkStrength(this.value)">
+            <button class="pw-toggle" type="button" onclick="togglePw('suPassword', this)">👁</button>
+          </div>
+          <div class="pw-strength" id="pwStrength">
+            <div class="pw-bars">
+              <div class="pw-bar" id="bar1"></div>
+              <div class="pw-bar" id="bar2"></div>
+              <div class="pw-bar" id="bar3"></div>
+              <div class="pw-bar" id="bar4"></div>
+            </div>
+            <div class="pw-label" id="pwLabel">Too short</div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Confirm Password</label>
+          <div class="field-input-wrap">
+            <span class="field-icon">🔑</span>
+            <input id="suConfirm" class="field-input" type="password"
+              placeholder="Re-enter password" autocomplete="new-password">
+            <button class="pw-toggle" type="button" onclick="togglePw('suConfirm', this)">👁</button>
+          </div>
+        </div>
+
+        <button class="btn-submit" id="signupBtn" onclick="doSignup()">
+          <span class="btn-text">Create Account →</span>
+          <span class="btn-spinner"><span class="spinner-ring"></span></span>
+        </button>
+      </div>
+
+      <div class="terms-note">
+        By creating an account you agree to our terms of service.<br>
+        Your data is stored locally and securely on this server.
+      </div>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <div class="divider-text">Already have one?</div>
+        <div class="divider-line"></div>
+      </div>
+      <div class="switch-link">
+        Already registered? <a href="/login">Sign in →</a>
+      </div>
+    </div>
+
+    <div class="form-footer">
+      NeelKanth IMS · v2.0 · Secure Multi-User Inventory Platform
+    </div>
+  </div>
+</main>
+
+<script>
+/* ── Navigation ─────────────────────────── */
+function gotoLogin()  { window.location.href = '/login';  }
+function gotoSignup() { window.location.href = '/signup'; }
+
+/* ── Password toggle ─────────────────────── */
+function togglePw(id, btn) {
+  const inp = document.getElementById(id);
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    inp.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+
+/* ── Gmail validation ─────────────────────── */
+function validateGmail(inp) {
+  const v = inp.value.trim().toLowerCase();
+  if (v && !v.endsWith('@gmail.com')) {
+    inp.classList.add('error');
+    inp.classList.remove('success');
+  } else if (v.endsWith('@gmail.com')) {
+    inp.classList.remove('error');
+    inp.classList.add('success');
+  } else {
+    inp.classList.remove('error','success');
+  }
+}
+
+/* ── Password strength ───────────────────── */
+function checkStrength(pw) {
+  const wrap = document.getElementById('pwStrength');
+  const bars = [document.getElementById('bar1'), document.getElementById('bar2'),
+                document.getElementById('bar3'), document.getElementById('bar4')];
+  const lbl  = document.getElementById('pwLabel');
+
+  if (!pw) { wrap.classList.remove('show'); return; }
+  wrap.classList.add('show');
+
+  let score = 0;
+  if (pw.length >= 8)  score++;
+  if (pw.length >= 12) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw) || /[^A-Za-z0-9]/.test(pw)) score++;
+
+  const levels = ['','weak','fair','good','strong'];
+  const labels = ['Too short','Weak','Fair','Good','Strong 💪'];
+  const clsMap = { weak:'weak', fair:'fair', good:'good', strong:'strong' };
+
+  bars.forEach((b, i) => {
+    b.className = 'pw-bar';
+    if (i < score) b.classList.add(levels[score]);
+  });
+  lbl.textContent = labels[score];
+}
+
+/* ── Message helper ──────────────────────── */
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.className = `form-message ${type} show`;
+  el.innerHTML = (type === 'err' ? '⚠ ' : '✓ ') + text;
+}
+function hideMsg(id) {
+  document.getElementById(id).className = 'form-message';
+}
+
+/* ── Loading state ───────────────────────── */
+function setLoading(btnId, on) {
+  const btn = document.getElementById(btnId);
+  if (on) { btn.classList.add('loading'); btn.disabled = true; }
+  else    { btn.classList.remove('loading'); btn.disabled = false; }
+}
+
+/* ── Sign In ─────────────────────────────── */
+async function doLogin() {
+  hideMsg('loginMsg');
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  if (!email || !password) {
+    showMsg('loginMsg', 'Please enter your email and password.', 'err');
+    return;
+  }
+
+  setLoading('loginBtn', true);
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showMsg('loginMsg', `Welcome back, ${data.name}! Redirecting…`, 'ok');
+      setTimeout(() => { window.location.href = '/'; }, 900);
+    } else {
+      showMsg('loginMsg', data.error || 'Sign in failed. Please try again.', 'err');
+      setLoading('loginBtn', false);
+    }
+  } catch (e) {
+    showMsg('loginMsg', 'Network error. Please try again.', 'err');
+    setLoading('loginBtn', false);
+  }
+}
+
+/* ── Sign Up ─────────────────────────────── */
+async function doSignup() {
+  hideMsg('signupMsg');
+  const name     = document.getElementById('suName').value.trim();
+  const email    = document.getElementById('suEmail').value.trim().toLowerCase();
+  const password = document.getElementById('suPassword').value;
+  const confirm  = document.getElementById('suConfirm').value;
+
+  if (!name || !email || !password || !confirm) {
+    showMsg('signupMsg', 'Please fill in all fields.', 'err'); return;
+  }
+  if (!email.endsWith('@gmail.com')) {
+    showMsg('signupMsg', 'Only Gmail accounts (@gmail.com) are accepted.', 'err'); return;
+  }
+  if (password.length < 8) {
+    showMsg('signupMsg', 'Password must be at least 8 characters.', 'err'); return;
+  }
+  if (password !== confirm) {
+    showMsg('signupMsg', 'Passwords do not match.', 'err'); return;
+  }
+
+  setLoading('signupBtn', true);
+  try {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ name, email, password, confirm }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showMsg('signupMsg', 'Account created! Redirecting to sign in…', 'ok');
+      setTimeout(() => { window.location.href = '/login'; }, 1400);
+    } else {
+      showMsg('signupMsg', data.error || 'Sign up failed. Please try again.', 'err');
+      setLoading('signupBtn', false);
+    }
+  } catch (e) {
+    showMsg('signupMsg', 'Network error. Please try again.', 'err');
+    setLoading('signupBtn', false);
+  }
+}
+
+/* ── Enter key support ───────────────────── */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (document.getElementById('loginSection').style.display !== 'none') doLogin();
+  else doSignup();
+});
+</script>
+</body>
+</html>
