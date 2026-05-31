@@ -1,7 +1,5 @@
-cat > /mnt/user-data/outputs/neelkanth_ims_render/requirements.txt << 'EOF'
 flask>=2.3.0
 gunicorn>=21.2.0
 openpyx1>=3.1.0
 psycopg2-binary>=2.9.9
-EOF
-echo "done"
+
