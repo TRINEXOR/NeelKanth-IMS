@@ -1018,3 +1018,4 @@ if __name__ == '__main__':
     print("             Analytics · Restock List · Barcode · Auth · Themes")
     print("─" * 58)
     app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
+    
