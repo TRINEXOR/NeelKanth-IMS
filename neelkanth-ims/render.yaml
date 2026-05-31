@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: neelkanth-ims
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.11"
+      - key: FLASK_DEBUG
+        value: "0"
